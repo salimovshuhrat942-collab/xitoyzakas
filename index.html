@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xitoyshop</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E1A3A; --cobalt:#1B3FA0; --porcelain:#F2F5FA; --paper:#fff;
+  --seal:#D8283C; --mist:#D9E1F0; --muted:#5C6987; --ok:#1E8A5A;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font:15px/1.45 'Onest',system-ui,sans-serif;background:var(--porcelain);color:var(--ink);padding-bottom:90px}
+h1,h2,h3,.brand{font-family:'Bricolage Grotesque',sans-serif;letter-spacing:-.01em}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,textarea,select{font:inherit;width:100%;padding:11px 12px;border:1.5px solid var(--mist);border-radius:10px;background:#fff;color:var(--ink)}
+input:focus,textarea:focus,select:focus,button:focus-visible{outline:2px solid var(--cobalt);outline-offset:1px}
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
+
+header{position:sticky;top:0;z-index:5;background:var(--cobalt);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:21px;font-weight:800}
+.switch{display:flex;background:rgba(255,255,255,.16);border-radius:10px;padding:3px}
+.switch button{padding:6px 12px;border-radius:8px;font-size:13px;font-weight:600;color:#dfe7ff}
+.switch button.on{background:#fff;color:var(--cobalt)}
+main{max-width:1100px;margin:0 auto;padding:14px}
+
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--paper);border:1.5px solid var(--mist);border-radius:var(--r);overflow:hidden;text-align:left;display:flex;flex-direction:column}
+.card .img{aspect-ratio:1;background:var(--mist) center/cover no-repeat}
+.card .b{padding:10px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card .t{font-weight:600;font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.seal{align-self:flex-start;background:var(--seal);color:#fff;font-weight:600;font-size:13px;padding:4px 9px;border-radius:6px;transform:rotate(-1.5deg)}
+.empty{text-align:center;color:var(--muted);padding:50px 10px}
+
+.btn{background:var(--cobalt);color:#fff;font-weight:600;padding:12px 16px;border-radius:12px;width:100%}
+.btn.sec{background:#fff;color:var(--cobalt);border:1.5px solid var(--cobalt)}
+.btn.red{background:var(--seal)}
+.btn.sm{width:auto;padding:7px 12px;font-size:13px;border-radius:9px}
+
+.bar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:6;max-width:700px;margin:0 auto}
+.bar .btn{display:flex;justify-content:space-between;box-shadow:0 8px 24px rgba(14,26,58,.28)}
+
+.sheet-bg{position:fixed;inset:0;background:rgba(14,26,58,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--paper);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+@media(min-width:700px){.sheet-bg{align-items:center}.sheet{border-radius:20px}}
+.sheet .img{aspect-ratio:4/3;border-radius:12px;background:var(--mist) center/cover no-repeat;margin-bottom:12px}
+.row{display:flex;gap:8px;align-items:center}
+.qty{display:flex;align-items:center;gap:10px}
+.qty button{width:34px;height:34px;border-radius:9px;border:1.5px solid var(--mist);font-size:18px;font-weight:600}
+
+/* admin */
+.admin{display:grid;gap:14px}
+@media(min-width:900px){.admin{grid-template-columns:200px 1fr;align-items:start}}
+.tabs{display:flex;gap:6px;overflow:auto}
+@media(min-width:900px){.tabs{flex-direction:column;position:sticky;top:70px}}
+.tabs button{padding:10px 14px;border-radius:10px;font-weight:600;white-space:nowrap;text-align:left;background:#fff;border:1.5px solid var(--mist)}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.panel{background:var(--paper);border:1.5px solid var(--mist);border-radius:var(--r);padding:14px}
+.panel h2{font-size:18px;margin-bottom:10px}
+.item{border-top:1.5px solid var(--mist);padding:12px 0;display:grid;gap:6px}
+.item:first-of-type{border-top:0}
+.item .head{display:flex;justify-content:space-between;gap:8px;font-weight:600}
+.item small{color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.chip{padding:5px 11px;border-radius:99px;border:1.5px solid var(--mist);font-size:13px;font-weight:500;background:#fff}
+.chip.on{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+.st{font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--mist)}
+.st.new{background:#FFE3E6;color:var(--seal)}.st.accepted{background:#DDE7FF;color:var(--cobalt)}
+.st.delivered{background:#D8F2E5;color:var(--ok)}.st.cancelled{background:#eee;color:#777}
+.thumb{width:54px;height:54px;border-radius:9px;background:var(--mist) center/cover}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.stat{border:1.5px solid var(--mist);border-radius:12px;padding:12px}
+.stat b{font-family:'Bricolage Grotesque';font-size:24px;display:block}
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;z-index:50;font-size:14px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Xitoyshop</div>
+  <div class="switch" id="switch" hidden>
+    <button data-v="shop" class="on">Do'kon</button>
+    <button data-v="admin">Boshqaruv</button>
+  </div>
+</header>
+<main id="app"></main>
+<div id="cartbar" class="bar" hidden></div>
+<div id="modal"></div>
+
+<script>
+const tg = window.Telegram?.WebApp; tg?.ready(); tg?.expand();
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => Number(n).toLocaleString('ru-RU') + " so'm";
+const ST = {new:'Yangi', accepted:'Qabul qilindi', delivered:'Yetkazildi', cancelled:'Bekor qilindi'};
+
+async function api(path, o = {}) {
+  const r = await fetch('/api' + path, {...o, headers: {'X-Init-Data': tg?.initData || '', ...(o.headers || {})}});
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || 'Xatolik yuz berdi');
+  return d;
+}
+const post = (p, body, m = 'POST') => api(p, {method: m, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+function toast(t) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 2600); }
+
+let me = null, products = [], cart = {}, view = 'shop', tab = 'orders', filter = 'all';
+
+/* ───────── boot ───────── */
+(async () => {
+  if (!tg?.initData) { $('#app').innerHTML = '<div class="empty">Bu ilovani Telegram ichida oching.</div>'; return; }
+  try {
+    me = await api('/me');
+    if (me.role !== 'customer') $('#switch').hidden = false;
+    await loadProducts(); render();
+  } catch (e) { $('#app').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+})();
+$('#switch').onclick = e => { const v = e.target.dataset.v; if (!v) return; view = v;
+  document.querySelectorAll('#switch button').forEach(b => b.classList.toggle('on', b.dataset.v === v)); render(); };
+
+async function loadProducts() { products = await api('/products'); }
+function render() { view === 'shop' ? renderShop() : renderAdmin(); renderCartBar(); }
+
+/* ───────── shop ───────── */
+function renderShop() {
+  if (!products.length) { $('#app').innerHTML = '<div class="empty">Hozircha mahsulot yo\'q.</div>'; return; }
+  $('#app').innerHTML = '<div class="grid">' + products.map(p => `
+    <button class="card" onclick="openProduct(${p.id})">
+      <div class="img" style="${p.photo ? `background-image:url('${p.photo}')` : ''}"></div>
+      <div class="b"><div class="t">${esc(p.title)}</div><div class="seal">${money(p.price)}</div></div>
+    </button>`).join('') + '</div>';
+}
+function renderCartBar() {
+  const n = Object.values(cart).reduce((a, b) => a + b, 0), bar = $('#cartbar');
+  bar.hidden = !(n && view === 'shop');
+  const sum = Object.entries(cart).reduce((a, [id, q]) => a + q * (products.find(p => p.id == id)?.price || 0), 0);
+  bar.innerHTML = `<button class="btn" onclick="openCheckout()"><span>Savat · ${n} ta</span><span>${money(sum)}</span></button>`;
+}
+function modal(html) { $('#modal').innerHTML = `<div class="sheet-bg" onclick="if(event.target===this)closeModal()"><div class="sheet">${html}</div></div>`; }
+function closeModal() { $('#modal').innerHTML = ''; }
+
+function openProduct(id) {
+  const p = products.find(x => x.id == id);
+  modal(`
+    <div class="img" style="${p.photo ? `background-image:url('${p.photo}')` : ''}"></div>
+    <h2>${esc(p.title)}</h2>
+    <p style="color:var(--muted);margin:6px 0 12px;white-space:pre-wrap">${esc(p.description)}</p>
+    <div class="row" style="justify-content:space-between;margin-bottom:14px"><span class="seal">${money(p.price)}</span>
+      <div class="qty"><button onclick="chq(-1)">−</button><b id="q">1</b><button onclick="chq(1)">+</button></div></div>
+    <button class="btn" onclick="addCart(${p.id})">Savatga qo'shish</button>`);
+}
+function chq(d) { const q = $('#q'); q.textContent = Math.max(1, Math.min(99, +q.textContent + d)); }
+function addCart(id) { cart[id] = (cart[id] || 0) + +$('#q').textContent; closeModal(); renderCartBar(); toast("Savatga qo'shildi"); }
+
+function openCheckout() {
+  const u = tg.initDataUnsafe?.user || {};
+  const lines = Object.entries(cart).map(([id, q]) => { const p = products.find(x => x.id == id); return p && `
+    <div class="row" style="justify-content:space-between;padding:6px 0"><span>${esc(p.title)} × ${q}</span>
+    <span class="row"><b>${money(p.price * q)}</b><button onclick="rmCart(${id})" aria-label="O'chirish" style="color:var(--seal);font-size:18px">✕</button></span></div>`; }).join('');
+  modal(`<h2>Buyurtma</h2>${lines}
+    <label>Ismingiz</label><input id="cn" value="${esc([u.first_name, u.last_name].filter(Boolean).join(' '))}">
+    <label>Telefon raqam</label><input id="cp" type="tel" placeholder="+998 90 123 45 67">
+    <label>Manzil</label><textarea id="ca" rows="2" placeholder="Viloyat, shahar, ko'cha"></textarea>
+    <label>Izoh (ixtiyoriy)</label><input id="cc">
+    <button class="btn" style="margin-top:16px" id="send" onclick="sendOrder()">Buyurtma yuborish</button>`);
+}
+function rmCart(id) { delete cart[id]; renderCartBar(); Object.keys(cart).length ? openCheckout() : closeModal(); }
+async function sendOrder() {
+  const b = $('#send'); b.disabled = true;
+  try {
+    await post('/orders', {items: Object.entries(cart).map(([id, qty]) => ({id: +id, qty})),
+      name: $('#cn').value, phone: $('#cp').value, address: $('#ca').value, note: $('#cc').value});
+    cart = {}; renderCartBar();
+    modal(`<h2>Buyurtma qabul qilindi ✓</h2><p style="margin:8px 0 16px;color:var(--muted)">Tez orada siz bilan bog'lanamiz.</p><button class="btn" onclick="closeModal()">Yopish</button>`);
+  } catch (e) { toast(e.message); b.disabled = false; }
+}
+
+/* ───────── admin ───────── */
+function renderAdmin() {
+  const tabs = [['orders', 'Buyurtmalar'], ['products', 'Mahsulotlar'], ['stats', 'Statistika']];
+  if (me.role === 'owner') tabs.splice(2, 0, ['sellers', 'Sotuvchilar']);
+  $('#app').innerHTML = `<div class="admin"><div class="tabs">${tabs.map(([k, n]) =>
+    `<button class="${tab === k ? 'on' : ''}" onclick="tab='${k}';renderAdmin()">${n}</button>`).join('')}</div>
+    <div class="panel" id="panel">Yuklanmoqda…</div></div>`;
+  ({orders: tOrders, products: tProducts, sellers: tSellers, stats: tStats})[tab]();
+}
+async function tOrders() {
+  try {
+    const all = await api('/orders'), list = filter === 'all' ? all : all.filter(o => o.status === filter);
+    $('#panel').innerHTML = `<h2>Buyurtmalar</h2><div class="chips">${['all', ...Object.keys(ST)].map(s =>
+      `<button class="chip ${filter === s ? 'on' : ''}" onclick="filter='${s}';tOrders()">${s === 'all' ? 'Hammasi' : ST[s]}</button>`).join('')}</div>` +
+      (list.map(o => `<div class="item">
+        <div class="head"><span>#${o.id} · ${esc(o.product_title)} × ${o.qty}</span><span class="st ${o.status}">${ST[o.status]}</span></div>
+        <div><b>${money(o.price * o.qty)}</b>${me.role === 'owner' ? ` <small>· ${esc(o.seller_name)}</small>` : ''}</div>
+        <div>${esc(o.customer_name)} · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a>${o.username ? ` · <a href="https://t.me/${esc(o.username)}">@${esc(o.username)}</a>` : ''}</div>
+        <small>📍 ${esc(o.address || '-')}${o.note ? ' · 💬 ' + esc(o.note) : ''}</small>
+        <div class="row" style="flex-wrap:wrap">${Object.keys(ST).filter(s => s !== o.status).map(s =>
+          `<button class="btn sec sm" onclick="setStatus(${o.id},'${s}')">${ST[s]}</button>`).join('')}</div>
+      </div>`).join('') || '<div class="empty">Buyurtma yo\'q</div>');
+  } catch (e) { $('#panel').textContent = e.message; }
+}
+async function setStatus(id, s) { try { await post(`/orders/${id}/status`, {status: s}); tOrders(); } catch (e) { toast(e.message); } }
+
+async function tProducts() {
+  try {
+    const list = await api('/products?mine=1');
+    $('#panel').innerHTML = `<div class="row" style="justify-content:space-between;margin-bottom:6px"><h2 style="margin:0">Mahsulotlar</h2>
+      <button class="btn sm" onclick="editProduct()">+ Qo'shish</button></div>` +
+      (list.map(p => `<div class="item"><div class="row">
+        <div class="thumb" style="${p.photo ? `background-image:url('${p.photo}')` : ''}"></div>
+        <div style="flex:1"><div class="head"><span>${esc(p.title)}</span></div>
+        <small>${money(p.price)}${me.role === 'owner' ? ' · ' + esc(p.seller_name) : ''}${p.active ? '' : ' · yashirin'}</small></div></div>
+        <div class="row" style="flex-wrap:wrap">
+          <button class="btn sec sm" onclick='editProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})'>Tahrirlash</button>
+          <button class="btn sm" onclick="postChannel(${p.id})">Kanalga joylash</button>
+          <button class="btn sec sm" style="color:var(--seal);border-color:var(--seal)" onclick="delProduct(${p.id})">O'chirish</button>
+        </div></div>`).join('') || '<div class="empty">Mahsulot yo\'q. "+ Qo\'shish" ni bosing.</div>');
+  } catch (e) { $('#panel').textContent = e.message; }
+}
+function editProduct(p = {}) {
+  modal(`<h2>${p.id ? 'Mahsulotni tahrirlash' : 'Yangi mahsulot'}</h2>
+    <label>Nomi</label><input id="pt" value="${esc(p.title)}">
+    <label>Narxi (so'm)</label><input id="pp" type="number" inputmode="numeric" value="${p.price ?? ''}">
+    <label>Tavsif</label><textarea id="pd" rows="4">${esc(p.description)}</textarea>
+    <label>Rasm</label><input id="pf" type="file" accept="image/*">
+    <label class="row" style="color:var(--ink)"><input id="pa" type="checkbox" style="width:auto" ${p.active === false ? '' : 'checked'}> Do'konda ko'rinsin</label>
+    <button class="btn" style="margin-top:16px" id="ps" onclick="saveProduct(${p.id || 0})">Saqlash</button>`);
+}
+async function saveProduct(id) {
+  const fd = new FormData();
+  if (id) fd.append('id', id);
+  fd.append('title', $('#pt').value); fd.append('price', $('#pp').value);
+  fd.append('description', $('#pd').value); fd.append('active', $('#pa').checked ? '1' : '0');
+  if ($('#pf').files[0]) fd.append('photo', $('#pf').files[0]);
+  $('#ps').disabled = true;
+  try { await api('/products', {method: 'POST', body: fd}); closeModal(); await loadProducts(); tProducts(); toast('Saqlandi'); }
+  catch (e) { toast(e.message); $('#ps').disabled = false; }
+}
+async function delProduct(id) { if (!confirm("Mahsulot o'chirilsinmi?")) return;
+  try { await api('/products/' + id, {method: 'DELETE'}); await loadProducts(); tProducts(); } catch (e) { toast(e.message); } }
+async function postChannel(id) { try { await api(`/products/${id}/post`, {method: 'POST'}); toast('Kanalga joylandi'); } catch (e) { toast(e.message); } }
+
+async function tSellers() {
+  try {
+    const list = await api('/sellers');
+    $('#panel').innerHTML = `<h2>Sotuvchilar</h2>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:8px">Sotuvchi Telegram ID sini @userinfobot orqali bilib olishi mumkin. Bot kanalda "Adminlarni qo'shish" huquqiga ega bo'lsa, kanalda ham admin qilinadi.</p>
+      <input id="sid" inputmode="numeric" placeholder="Telegram ID"><div style="height:8px"></div>
+      <input id="sn" placeholder="Ismi"><div style="height:8px"></div>
+      <input id="sc" placeholder="Kanali (ixtiyoriy): @kanal"><div style="height:10px"></div>
+      <button class="btn" onclick="addSeller()">Sotuvchi qo'shish</button><div style="height:10px"></div>` +
+      list.map(s => `<div class="item"><div class="head"><span>${esc(s.name)}</span>
+        <button class="btn sec sm" style="color:var(--seal);border-color:var(--seal)" onclick="delSeller(${s.tg_id})">Olib tashlash</button></div>
+        <small>ID: ${s.tg_id}${s.channel ? ' · ' + esc(s.channel) : ''}</small></div>`).join('');
+  } catch (e) { $('#panel').textContent = e.message; }
+}
+async function addSeller() {
+  try { const r = await post('/sellers', {tg_id: $('#sid').value, name: $('#sn').value, channel: $('#sc').value});
+    toast(r.channel_admin ? "Qo'shildi, kanalda admin qilindi" : "Qo'shildi (kanal adminligi berilmadi)"); tSellers(); }
+  catch (e) { toast(e.message); }
+}
+async function delSeller(id) { if (!confirm('Olib tashlansinmi?')) return;
+  try { await api('/sellers/' + id, {method: 'DELETE'}); tSellers(); } catch (e) { toast(e.message); } }
+
+async function tStats() {
+  try {
+    const s = await api('/stats'), n = k => s[k]?.count || 0;
+    const total = Object.values(s).reduce((a, b) => a + b.count, 0);
+    $('#panel').innerHTML = `<h2>Statistika</h2><div class="stats">
+      <div class="stat"><b>${total}</b>Jami buyurtma</div>
+      <div class="stat"><b>${n('new')}</b>Yangi</div>
+      <div class="stat"><b>${n('accepted')}</b>Qabul qilingan</div>
+      <div class="stat"><b>${n('delivered')}</b>Yetkazilgan</div>
+      <div class="stat" style="grid-column:1/-1"><b>${money(s.delivered?.sum || 0)}</b>Yetkazilgan buyurtmalar summasi</div></div>`;
+  } catch (e) { $('#panel').textContent = e.message; }
+}
+</script>
+</body>
+</html>
